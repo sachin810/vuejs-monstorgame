@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monster Slayer</title>
+    <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="css/foundation.min.css">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+    <section class="row">
+        <div class="small-6 columns">
+            <h1 class="text-center">YOU</h1>
+            <div class="healthbar">
+                <div v-if="you>20" v-bind:style=' {width: you + "%"} 'class="healthbar text-center" style="background-color: green; margin: 0; color: white;">
+                    <p v-if='show'> {{you}} </p>
+                </div>
+                <div v-else v-bind:style=' {width: you + "%"} 'class="healthbar text-center" style="background-color: red; margin: 0; color: white;">
+                    <p v-if='show'> {{you}} </p>
+                </div>               
+            </div>
+        </div>
+        <div class="small-6 columns">
+            <h1 class="text-center">MONSTER</h1>
+            <div class="healthbar">
+                <div v-if="monster>20" v-bind:style=' {width: monster + "%"} ' class="healthbar text-center" style="background-color: green; margin: 0; color: white;">
+                    <p v-if='show'> {{monster}} </p>
+                </div>
+                <div v-else v-bind:style=' {width: monster + "%"} ' class="healthbar text-center" style="background-color: red; margin: 0; color: white;">
+                    <p v-if='show'> {{monster}} </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section v-if='!show' class="row controls" >
+        <div class="small-12 columns">
+            <button id="start-game" v-on:click='{{running()}}'>START NEW GAME</button>
+        </div>
+    </section>
+    <section v-else class="row controls">
+        <div class="small-12 columns">
+            <button id="attack" @click='{{gameOn()}}'>ATTACK</button>
+            <button id="special-attack" @click='specialAttack'>SPECIAL ATTACK</button>
+            <button v-if='heal_click<=3'id="heal" @click='heal'>HEAL</button>
+            <button id="give-up" @click='giveUp'>GIVE UP</button>
+        </div>
+    </section>
+    <section v-if='logs.length>0'class="row log">
+        <div class="small-12 columns">
+            <ul>
+                <li v-for='log in logs' :class="{'player-turn': log.isPlayer,'monster-turn': !log.isPlayer}">
+                        {{log.text}}
+                </li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+<script type="text/javascript">
+new Vue({
+    el: '#app',
+    data: {
+        show: false,
+        you: 0,
+        monster: 0,
+        heal_click: 0,
+        logs: [],
+    },
+    methods: {
+        running() {
+            this.show = true;
+            this.you = 100;
+            this.monster = 100;
+        },
+        gameOn() {
+            var min=2;
+            var max=5; 
+            var random =Math.floor(Math.random() * (+max - +min)) + +min;
+            this.you -= random;
+            this.logs.unshift(
+                {isPlayer: false, text: 'MONSTER HITS USER FOR ' + random}
+                )
+            if (this.you<=0) {
+                alert('Game Over')
+                this.show = false;
+                this.heal_click = 0;
+            }
+
+            min=2;
+            max=5; 
+            random =Math.floor(Math.random() * (+max - +min)) + +min;
+            this.monster -= random;
+            this.logs.unshift(
+                {isPlayer: true, text: 'USER HITS MONSTER FOR ' + random}
+                )            
+           if (this.monster<=0) {
+                alert('Hurreyyy!!!!!  You Won')
+                this.show = false;
+                this.heal_click = 0;
+            }            
+
+        },
+        specialAttack() {
+            var min=3;
+            var max=7; 
+            var random =Math.floor(Math.random() * (+max - +min)) + +min;
+            this.monster -= random;
+            this.logs.unshift(
+                {isPlayer: true, text: 'USER HITS MONSTER FOR ' + random}
+                )               
+           if (this.monster<=0) {
+                alert('Hurreyyy!!!!!  You Won')
+                this.show = false;
+                this.heal_click = 0;
+
+            } 
+
+            min=2;
+            max=5; 
+            random =Math.floor(Math.random() * (+max - +min)) + +min;
+            this.you -= random;
+            this.logs.unshift(
+                {isPlayer: false, text: 'MONSTER HITS USER FOR ' + random}
+                )            
+           if (this.you<=0) {
+                alert('You Lost')
+                this.show = false;
+                this.heal_click = 0;
+            
+            }                               
+
+        },
+        heal(){
+
+            min=2;
+            max=5; 
+            random =Math.floor(Math.random() * (+max - +min)) + +min;
+            this.you += random;
+            this.logs.unshift(
+                {isPlayer: true, text: 'USER HEALS LIFE FOR ' + random}
+                )                
+            this.heal_click ++; 
+            if (this.heal_click>=4){
+                alert('You Reached Max No of Healings in this game')
+            }
+
+            var min=1;
+            var max=4; 
+            var random =Math.floor(Math.random() * (+max - +min)) + +min;
+            this.you -= random;
+            this.logs.unshift(
+                {isPlayer: false, text: 'MONSTER HITS USER FOR ' + random}
+                )                
+           if (this.you<=0) {
+                alert('You Lost')
+                this.show = false;
+                this.heal_click = 0;
+            
+            }  
+
+        },
+        giveUp() {
+            this.show = false;
+            this.heal_click = 0;
+
+        }
+    }
+});
+</script>
+</body>
+</html>
